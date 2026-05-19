@@ -89,6 +89,24 @@ The utility "hooks" into the engine's `InputHandler.java`. By overriding the `ke
 
 ---
 
+## 🎯 Improvement 2: Actor/Damage System Refactoring
+
+This improvement targets the **Maintainability** and **Reliability** of the core combat logic (`Char.java`), addressing scattered constants, hardcoded type checks, and tight coupling.
+
+### Technical Summary
+
+1.  **Magic Number Extraction** — Replaced 24+ scattered numeric literals (e.g., `1.5f`, `0.67f`) with named `private static final` constants (e.g., `BERSERK_DAMAGE_MULTIPLIER`). This centralizes game balance tuning and significantly improves readability.
+
+2.  **`DamageProperty` Enum System** — Introduced an extensible `DamageProperty` enum with pre-built `EnumSet` constants to replace hardcoded `instanceof` checks. Currently applied to `Hunger` and `Electricity` blobs, this system explicitly declares shield-bypass behavior at the call site, adhering to the **Open/Closed Principle (OCP)**.
+
+3.  **`DamageCalculator` Utility** — Established a centralized utility class for property-checking logic (`bypassesShields`, `bypassesResistance`, etc.). This decouples `Char.java` from specific damage source classes, providing a modular, contract-based foundation for the damage system.
+
+4.  **Defensive Guard Clauses** — Added input validation at the entry of `Char.damage(int, Object, Set<DamageProperty>)` to reject negative damage, null sources, and zero-damage no-ops. This prevents cascading `NullPointerException` failures and improves fault tolerance.
+
+5.  **Architectural Decomposition** — Reduced tight coupling by separating state management, property contracts, and calculation rules into three focused classes (`Char`, `DamageCalculator`, `DamageProperty`). This decomposition adheres to the **Single Responsibility Principle (SRP)** and reduces the modification surface area of the main character class.
+
+---
+
 ## 🔄 Collaboration Workflow
 - **Branching:** Use `feature/` or `fix/` branches.
 - **Commits:** Every change **must** include a git commit message at the end of the message.
